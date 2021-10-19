@@ -42,24 +42,6 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 		key += fmt.Sprintf(".%s", ext)
 	}
 
-	// private keyの変わりに,signbytesを使う
-	// 毎回APIコールしたくなければ、private keyを使う
-	// url, err := storage.SignedURL(uploadableBucket, key, &storage.SignedURLOptions{
-	// 	GoogleAccessID: serviceAccountName,
-	// 	Method:         "PUT",
-	// 	Expires:        time.Now().Add(15 * time.Minute),
-	// 	ContentType:    ct,
-	// 	SignBytes: func(b []byte) ([]byte, error) {
-	// 		// resp, err := iamService.Projects.ServiceAccounts.SignBlob(
-	// 		// 	serviceAccountID,
-	// 		// 	&iam.SignBlobRequest{BytesToSign: base64.StdEncoding.EncodeToString(b)},
-	// 		// ).Context(r.Context()).Do()
-	// 		// if err != nil {
-	// 		// 	return nil, err
-	// 		// }
-	// 	},
-	// })
-
 	url, err := generateV4PutObjectSignedURL(w, uploadableBucket, key, serviceAccountName)
 
 	if err != nil {
@@ -111,9 +93,6 @@ func loadEnv() {
 
 func main() {
 	loadEnv()
-
-	cur, _ := os.Getwd()
-	fmt.Println(cur)
 
 	cred, err := google.DefaultClient(context.Background(), iam.CloudPlatformScope)
 	if err != nil {
