@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -24,6 +25,10 @@ var (
 	uploadableBucket   string
 )
 
+type SignResponse struct {
+	SignedURL string `json:"signedUrl"`
+}
+
 func signHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.Header().Set("Allow", "Post")
@@ -43,17 +48,26 @@ func signHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url, err := generateV4PutObjectSignedURL(w, uploadableBucket, key, serviceAccountName)
+	log.Println(url)
 
 	if err != nil {
 		log.Printf("sign: failed to sign, err = %v\n", err)
 		http.Error(w, "failed to sign by internal serval error", http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, url)
+
+	response := SignResponse{
+		SignedURL: url,
+	}
+
+	resJson, _ := json.Marshal(response)
+	w.WriteHeader(200)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Write(resJson)
 }
 
 func generateV4PutObjectSignedURL(w io.Writer, bucket, object, serviceAccount string) (string, error) {
+	// ↓example
 	// bucket := "bucket-name"
 	// object := "object-name"
 	// serviceAccount := "service_account.json"
@@ -80,7 +94,6 @@ func generateV4PutObjectSignedURL(w io.Writer, bucket, object, serviceAccount st
 		return "", fmt.Errorf("storage.SignedURL: %v", err)
 	}
 
-	fmt.Fprintln(w, "Generated PUT signed URL: ")
 	return u, nil
 }
 
