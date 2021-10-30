@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { GetSignedUrlConfig, Storage } from "@google-cloud/storage";
 import bodyParser from "body-parser";
 import * as crypto from "crypto";
+import cors from "cors";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require("dotenv").config();
@@ -12,6 +13,11 @@ const storage = new Storage();
 
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());
+server.use(
+  cors({
+    origin: "*",
+  })
+);
 
 router.post("/sign", async (req: Request, res: Response): Promise<void> => {
   const ext = req.body.ext;
