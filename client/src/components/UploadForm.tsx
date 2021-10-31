@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useCallback, useState } from "react";
+import { generateSignedUrl } from "../api/generateSignedUrl";
 import { client } from "../axiosClient";
 
 type Props = {};
@@ -21,20 +22,13 @@ const UploadForm: React.FC<Props> = (props: Props) => {
     async (data) => {
       try {
         const ext = file?.name.split(".").pop();
+        if (!ext) {
+          return;
+        }
 
-        console.log(ext);
+        const response = await generateSignedUrl(ext);
 
-        const body = {
-          ext: ext,
-        };
-
-        const res = await client.post("/sign", body, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        console.log(res);
+        console.log(response);
       } catch (err) {
         console.log(err);
       }
