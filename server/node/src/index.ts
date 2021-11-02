@@ -31,6 +31,7 @@ router.post("/sign", async (req: Request, res: Response): Promise<void> => {
   const url = await generateV4UploadSignedUrl(`${fileName}.${ext}`);
   res.send({
     signedUrl: url,
+    url: `https://storage.googleapis.com/${process.env.UPLOADABLE_BUCKET}/${fileName}.${ext}`,
   });
 });
 

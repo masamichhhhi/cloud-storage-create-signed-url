@@ -1,7 +1,8 @@
-import { client } from "../axiosClient";
+import { client } from "./axiosClient";
 
 type GenerateSignedUrlResponse = {
   signedUrl: string;
+  url: string;
 };
 
 export const generateSignedUrl = async (
